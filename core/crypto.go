@@ -9,6 +9,8 @@ import (
 )
 
 type CryptoManager interface {
+	GetBits() int
+
 	CreatePubPriKey() (*rsa.PrivateKey, *rsa.PublicKey)
 	PrivateKeyToBytes(pri *rsa.PrivateKey) []byte
 	PublicKeyToBytes(pub *rsa.PublicKey) []byte
@@ -28,13 +30,17 @@ func NewCryptoManager(bits int) CryptoManager {
 	}
 }
 
-func (cm cryptoManager) CreatePubPriKey() (*rsa.PrivateKey, *rsa.PublicKey) {
+func (cm *cryptoManager) GetBits() int {
+	return cm.bits
+}
+
+func (cm *cryptoManager) CreatePubPriKey() (*rsa.PrivateKey, *rsa.PublicKey) {
 	privkey, _ := rsa.GenerateKey(rand.Reader, cm.bits)
 
 	return privkey, &privkey.PublicKey
 }
 
-func (cm cryptoManager) PrivateKeyToBytes(pri *rsa.PrivateKey) []byte {
+func (cm *cryptoManager) PrivateKeyToBytes(pri *rsa.PrivateKey) []byte {
 	privBytes := pem.EncodeToMemory(
 		&pem.Block{
 			Type:  "RSA PRIVATE KEY",
@@ -45,7 +51,7 @@ func (cm cryptoManager) PrivateKeyToBytes(pri *rsa.PrivateKey) []byte {
 	return privBytes
 }
 
-func (cm cryptoManager) PublicKeyToBytes(pub *rsa.PublicKey) []byte {
+func (cm *cryptoManager) PublicKeyToBytes(pub *rsa.PublicKey) []byte {
 	pubASN1, _ := x509.MarshalPKIXPublicKey(pub)
 
 	pubBytes := pem.EncodeToMemory(&pem.Block{
@@ -56,7 +62,7 @@ func (cm cryptoManager) PublicKeyToBytes(pub *rsa.PublicKey) []byte {
 	return pubBytes
 }
 
-func (cm cryptoManager) BytesToPrivateKey(priv []byte) *rsa.PrivateKey {
+func (cm *cryptoManager) BytesToPrivateKey(priv []byte) *rsa.PrivateKey {
 	block, _ := pem.Decode(priv)
 	enc := x509.IsEncryptedPEMBlock(block)
 	b := block.Bytes
@@ -78,7 +84,7 @@ func (cm cryptoManager) BytesToPrivateKey(priv []byte) *rsa.PrivateKey {
 	return key
 }
 
-func (cm cryptoManager) BytesToPublicKey(pub []byte) *rsa.PublicKey {
+func (cm *cryptoManager) BytesToPublicKey(pub []byte) *rsa.PublicKey {
 	block, _ := pem.Decode(pub)
 	enc := x509.IsEncryptedPEMBlock(block)
 	b := block.Bytes
@@ -105,7 +111,7 @@ func (cm cryptoManager) BytesToPublicKey(pub []byte) *rsa.PublicKey {
 	return key
 }
 
-func (cm cryptoManager) EncryptWithPublicKey(msg []byte, pub *rsa.PublicKey) []byte {
+func (cm *cryptoManager) EncryptWithPublicKey(msg []byte, pub *rsa.PublicKey) []byte {
 	hash := sha512.New()
 	ciphertext, err := rsa.EncryptOAEP(hash, rand.Reader, pub, msg, nil)
 	if err != nil {
@@ -116,7 +122,7 @@ func (cm cryptoManager) EncryptWithPublicKey(msg []byte, pub *rsa.PublicKey) []b
 }
 
 // DecryptWithPrivateKey decrypts data with private key
-func (cm cryptoManager) DecryptWithPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) []byte {
+func (cm *cryptoManager) DecryptWithPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) []byte {
 	hash := sha512.New()
 	plaintext, err := rsa.DecryptOAEP(hash, rand.Reader, priv, ciphertext, nil)
 
