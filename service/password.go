@@ -18,14 +18,14 @@ type PasswordRepresentation struct {
 	Password string
 }
 
-type Passwords struct {
+type PasswordService struct {
 	cryptoManager core.CryptoManager
 	privateKey    *rsa.PrivateKey
 	publicKey     *rsa.PublicKey
 	passwords     map[string]Password
 }
 
-func (p *Passwords) ListPasswords() []*PasswordRepresentation {
+func (p *PasswordService) ListPasswords() []*PasswordRepresentation {
 	passwords := make([]*PasswordRepresentation, 0)
 
 	for key, val := range p.passwords {
@@ -36,7 +36,7 @@ func (p *Passwords) ListPasswords() []*PasswordRepresentation {
 	}
 }
 
-func (p *Passwords) GetPassword(name string) (*PasswordRepresentation, error) {
+func (p *PasswordService) GetPassword(name string) (*PasswordRepresentation, error) {
 	if val, ok := p.passwords[name]; ok {
 		password := p.cryptoManager.DecryptWithPrivateKey(val.encryptedPassword, p.privateKey)
 
@@ -50,7 +50,7 @@ func (p *Passwords) GetPassword(name string) (*PasswordRepresentation, error) {
 	return nil, fmt.Errorf("Key `%s` not found", name)
 }
 
-func (p *Passwords) StorePassword(representation PasswordRepresentation) (*PasswordRepresentation, error) {
+func (p *PasswordService) StorePassword(representation PasswordRepresentation) (*PasswordRepresentation, error) {
 	if _, ok := p.passwords[representation.Name]; ok {
 		return nil, fmt.Errorf("Key `%s` already exists in your password database, please prefer other name or get password from this key.", representation.Name)
 	}
