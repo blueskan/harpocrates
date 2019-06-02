@@ -121,7 +121,6 @@ func (cm *cryptoManager) EncryptWithPublicKey(msg []byte, pub *rsa.PublicKey) []
 	return ciphertext
 }
 
-// DecryptWithPrivateKey decrypts data with private key
 func (cm *cryptoManager) DecryptWithPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) []byte {
 	hash := sha512.New()
 	plaintext, err := rsa.DecryptOAEP(hash, rand.Reader, priv, ciphertext, nil)
