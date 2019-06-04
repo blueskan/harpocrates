@@ -36,3 +36,19 @@
 [[constraint]]
   name = "github.com/vmihailenco/msgpack"
   version = "4.0.4"
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+  version = "0.0.4"
+
+[[constraint]]
+  name = "github.com/olekukonko/tablewriter"
+  version = "0.0.1"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+
+[[constraint]]
+  name = "github.com/go-ini/ini"
+  version = "1.42.0"
